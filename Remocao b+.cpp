@@ -34,20 +34,20 @@ nodo_t *removeElemento(nodo_t* remover, nodo_t* arvore, int indice, int ordem){
 				}
 			}
 			
-			if(remover->prox){//EXISTE UM IRMAO A DIREITA?
-				if(remover->prox->quantidadeKeys > qtdMinima){//POSSO PEGAR EMPRESTA DESSE IRMAO?
-					remover->keys[remover->quantidadeFilhos+1] = remover->prox->keys[0];
-					remover->offsets[remover->quantidadeFilhos+1] = remover->prox->offsets[0];
+			if(remover->pai->quantidadeFilhos > i){//EXISTE UM IRMAO A DIREITA?
+				if(remover->pai->filhos[i+1]->quantidadeKeys > qtdMinima){//POSSO PEGAR EMPRESTA DESSE IRMAO?
+					remover->keys[remover->quantidadeFilhos+1] = remover->pai->filhos[i+1]->keys[0];
+					remover->offsets[remover->quantidadeFilhos+1] = remover->pai->filhos[i+1]->offsets[0];
 					//AGRUPO OS ELEMENTOS NO INICIO NOVAMENTE
-					mataOffsets(remover->prox->offsets[0]); 
-					for(i = 1; i <= remover->prox->quantidadeFilhos; i++){
-						remover->keys[indice-1] = remover->keys[indice];
-						remover->offsets[indice-1] = remover->offsets[indice];
+					mataOffsets(remover->pai->filhos[i+1]->offsets[0]); 
+					for(j = 1; j <= remover->pai->filhos[i+1]->quantidadeFilhos; j++){
+						remover->pai->filhos[i+1]->keys[j-1] = remover->pai->filhos[i+1]->keys[j];
+						remover->pai->filhos[i+1]->offsets[j-1] = remover->pai->filhos[i+1]->offsets[j];
 					}
 					//MATA A ULTIMA LISTA DE OFFSET, COLOCO COMO NUL A ULTIMA HASH E DIMINUI O NUMERO DE FILHOS
-					mataOffsets(remover->prox->offsets[remover->prox->quantidadeFilhos]);
-					remover->prox->keys[remover->prox->quantidadeFilhos] = NULL;
-					remover->prox->quantidadeFilhos--;
+					mataOffsets(remover->pai->filhos[i+1]->offsets[remover->pai->filhos[i+1]->quantidadeKeys]);
+					remover->pai->filhos[i+1]->keys[remover->pai->filhos[i+1]->quantidadeKeys] = NULL;
+					remover->pai->filhos[i+1]->quantidadeKeys--;
 				}
 			}else{
 				if(i){//EXISTE UM IRMAO A ESQUERDA?
