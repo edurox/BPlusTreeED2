@@ -16,9 +16,12 @@ nodo_t* emprestadoDireita(nodo_t** pai, nodo_t** remover, nodo_t** irmao, int in
 }
 
 nodo_t* emprestadoEsquerda(nodo_t** pai, nodo_t** remover, nodo_t** irmao,int indicePai){
-	(*remover)->keys[(*remover)->quantidadeKeys] = (*irmao)->keys[(*irmao)->quantidadeKeys];
-	(*remover)->offsets[(*remover)->quantidadeKeys] = (*irmao)->offsets[(*irmao)->quantidadeKeys];
+	(*remover)->keys[(*remover)->quantidadeKeys] = (*remover)->keys[(*remover)->quantidadeKeys-1];
+	(*remover)->offsets[(*remover)->quantidadeKeys] = (*remover)->offsets[(*remover)->quantidadeKeys-1];
+	(*remover)->keys[(*remover)->quantidadeKeys-1] = (*irmao)->keys[(*irmao)->quantidadeKeys-1];
+	(*remover)->offsets[(*remover)->quantidadeKeys-1] = (*irmao)->offsets[(*irmao)->quantidadeKeys-1];
 	(*remover)->quantidadeKeys++;
+	
 	//AJUSTA O IRMAO
 	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
 	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
