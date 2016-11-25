@@ -20,35 +20,6 @@ nodo_t *removeElemento(nodo_t* remover, nodo_t* arvore, int indice, int ordem){
 			if(remover->quantidadeKeys){//VERIFICA SE RESTA ELEMENTOS NO NÓ
 				return arvore;
 			}else{
-				return NULL;
-			}
-		}
-		
-		if(remover->quantidadeKeys >= qtdMinima){//AINDA RESTAM O MINIMO DE ELEMENTOS
-			return arvore;
-		}else{//NAO TERM A QUANTIDADE DE ELEMTNTOS MINIMO
-			//ENCONTRA O INDICE NO PAI PARA CONFERIR SE É POSSIVEL PEGAR EMPRESTADO DO IRMAO A ESQUERDA
-			for(i = 0; i <= remover->pai->quantidadeFilhos; i++){
-				if(remover->pai->filhos[i] == remover){
-					break;
-				}
-			}
-			
-			if(remover->pai->quantidadeFilhos > i){//EXISTE UM IRMAO A DIREITA?
-				if(remover->pai->filhos[i+1]->quantidadeKeys > qtdMinima){//POSSO PEGAR EMPRESTA DESSE IRMAO?
-					remover->keys[remover->quantidadeFilhos+1] = remover->pai->filhos[i+1]->keys[0];
-					remover->offsets[remover->quantidadeFilhos+1] = remover->pai->filhos[i+1]->offsets[0];
-					//AGRUPO OS ELEMENTOS NO INICIO NOVAMENTE
-					mataOffsets(remover->pai->filhos[i+1]->offsets[0]); 
-					for(j = 1; j <= remover->pai->filhos[i+1]->quantidadeFilhos; j++){
-						remover->pai->filhos[i+1]->keys[j-1] = remover->pai->filhos[i+1]->keys[j];
-						remover->pai->filhos[i+1]->offsets[j-1] = remover->pai->filhos[i+1]->offsets[j];
-					}
-					//MATA A ULTIMA LISTA DE OFFSET, COLOCO COMO NUL A ULTIMA HASH E DIMINUI O NUMERO DE FILHOS
-					mataOffsets(remover->pai->filhos[i+1]->offsets[remover->pai->filhos[i+1]->quantidadeKeys]);
-					remover->pai->filhos[i+1]->keys[remover->pai->filhos[i+1]->quantidadeKeys] = NULL;
-					remover->pai->filhos[i+1]->quantidadeKeys--;
-				}
 nodo_t* emprestadoDireita(nodo_t** pai, nodo_t** remover, nodo_t** irmao, int indicePai){
 	int i;
 	(*remover)->keys[(*remover)->quantidadeKeys] = (*irmao)->keys[0];
