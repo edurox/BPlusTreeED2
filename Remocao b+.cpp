@@ -49,31 +49,90 @@ nodo_t *removeElemento(nodo_t* remover, nodo_t* arvore, int indice, int ordem){
 					remover->pai->filhos[i+1]->keys[remover->pai->filhos[i+1]->quantidadeKeys] = NULL;
 					remover->pai->filhos[i+1]->quantidadeKeys--;
 				}
+nodo_t* emprestadoDireita(nodo_t** pai, nodo_t** remover, nodo_t** irmao, int indicePai){
+	int i;
+	(*remover)->keys[(*remover)->quantidadeKeys] = (*irmao)->keys[0];
+	(*remover)->offsets[(*remover)->quantidadeKeys] = (*irmao)->offsets[0];
+	(*remover)->quantidadeKeys++;
+	//AGRUPO OS ELEMENTOS DO IRMAO NO INICIO NOVAMENTE
+	for(i = 1; i <= (*irmao)->quantidadeKeys; i++){
+		(*irmao)->keys[i-1] = (*irmao)->keys[i];
+		(*irmao)->offsets[i-1] = (*irmao)->offsets[i];
+	}
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
+	(*irmao)->quantidadeKeys--;
+	(*pai)->keys[indicePai] = (*irmao)->keys[0];
+	return *pai;
+}
+
+nodo_t* emprestadoEsquerda(nodo_t** pai, nodo_t** remover, nodo_t** irmao,int indicePai){
+	(*remover)->keys[(*remover)->quantidadeKeys] = (*irmao)->keys[(*irmao)->quantidadeKeys];
+	(*remover)->offsets[(*remover)->quantidadeKeys] = (*irmao)->offsets[(*irmao)->quantidadeKeys];
+	(*remover)->quantidadeKeys++;
+	//AJUSTA O IRMAO
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
+	(*irmao)->quantidadeKeys--;
+	(*pai)->filhos[indicePai-1] = *irmao;
+	return *pai;
+}
+
+nodo_t *removeElemento(nodo_t* remover,nodo_t* pai, nodo_t* arvore, int indice, int ordem){
+	int i,j,qtdMinima = (ordem-1)/2;
+	nodo_t* irmao;
+	
+	if (!remover || !arvore)//CASO O NODO COM O ITEM A REMOVER SEJA NULO RETORNA
+		return NULL;
+	
+	if(remover->folha){
+		indice++;
+		while(indice <= remover->quantidadeKeys){
+			remover->keys[indice-1] = remover->keys[indice];
+			remover->offsets[indice-1] = remover->offsets[indice];
+			indice++;
+		}
+		remover->keys[indice-1] = NULL;
+		mataOffsets(remover->offsets[indice-1]);
+		remover->quantidadeKeys--;
+		
+		if(remover->quantidadeKeys >= qtdMinima)//AINDA RESTAM O MINIMO DE ELEMENTOS
+			return arvore;
+		
+		if(!remover->pai){//A REMOCAO FOI NA RAIZ
+			if(remover->quantidadeKeys){//VERIFICA SE RESTA ELEMENTOS NO N?
+				return arvore;
 			}else{
-				if(i){//EXISTE UM IRMAO A ESQUERDA?
-					if(remover->pai->filhos[i-1]->quantidadeKeys > qtdMinima){//POSSO PEGAR EMPRESTADO DESSE IRMAO?
-						//EMPURO UMA POSICAO A ESQUERDA TODOS OS ELEMENTOS
-						for(j = remover->quantidadeKeys; j >= 0; j++){
-							remover->keys[j+1] = remover->keys[j];
-							remover->offsets[j+1] = remover->offsets[j];
-						}
-						//RECEBE O NOVO ELEMENTO
-						mataOffsets(remover->offsets[0]);
-						remover->keys[0] = remover->pai->filhos[i-1]->keys[remover->pai->quantidadeKeys];
-						remover->offsets[0] = remover->pai->filhos[i-1]->offsets[remover->pai->quantidadeKeys];
-						remover->quantidadeFilhos++;
-						//APAGA O ELEMENTO DO IRMAO
-						remover->pai->filhos[i-1]->keys[remover->pai->filhos[i-1]->quantidadeFilhos] = NULL;
-						mataOffsets(remover->pai->filhos[i-1]->offsets[remover->pai->filhos[i-1]->quantidadeFilhos]);
-						remover->pai->filhos[i-1]->quantidadeFilhos--;
-					}
+				return NULL;
+			}
+		}
+		
+		//NAO TERM A QUANTIDADE DE ELEMTNTOS MINIMO
+		//ENCONTRA O INDICE NO PAI PARA CONFERIR SE ? POSSIVEL PEGAR EMPRESTADO DO IRMAO A ESQUERDA
+		for(i = 0; i <= remover->pai->quantidadeFilhos; i++){
+			if(remover->pai->filhos[i] == remover){
+				break;
+			}
+		}
+		if(remover->pai->quantidadeFilhos > i){//EXISTE UM IRMAO A DIREITA?
+			irmao = remover->pai->filhos[i+1];
+			if(irmao->quantidadeKeys > qtdMinima){//POSSO PEGAR EMPRESTA DESSE IRMAO?
+				pai = emprestadoDireita(&pai,&remover,&irmao,i);
+				return arvore;
+			}
+		}else{
+			if(i){//EXISTE IRMAO A ESQUERDA?
+				irmao = remover->pai->filhos[i-1];
+				if(irmao->quantidadeKeys > qtdMinima){//POSSO PEGAR EMPRESTA DESSE IRMAO?
+					pai = emprestadoEsquerda(&pai,&remover,&irmao,i);
+					return arvore;
 				}
 			}
 		}
-	}else{
+		
+	}else{//NAO FOLHA
 		
 	}
-	return arvore;
 }
 
 
