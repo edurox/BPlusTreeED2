@@ -1,25 +1,3 @@
-nodo_t *removeElemento(nodo_t* remover, nodo_t* arvore, int indice, int ordem){
-	int i,j,qtdMinima = (ordem-1)/2;
-	
-	if (!remover || !arvore)//CASO O NODO COM O ITEM A REMOVER SEJA NULO RETORNA
-		return NULL;
-	
-	if(remover->folha){
-		mataOffsets(remover->offsets[indice]);
-		indice++;
-		while(indice <= remover->quantidadeKeys){
-			remover->keys[indice-1] = remover->keys[indice];
-			remover->offsets[indice-1] = remover->offsets[indice];
-			indice++;
-		}
-		remover->keys[indice-1] = NULL;
-		mataOffsets(remover->offsets[indice-1]);
-		remover->quantidadeKeys--;
-		
-		if(!remover->pai){//A REMOCAO FOI NA RAIZ
-			if(remover->quantidadeKeys){//VERIFICA SE RESTA ELEMENTOS NO NÓ
-				return arvore;
-			}else{
 nodo_t* emprestadoDireita(nodo_t** pai, nodo_t** remover, nodo_t** irmao, int indicePai){
 	int i;
 	(*remover)->keys[(*remover)->quantidadeKeys] = (*irmao)->keys[0];
@@ -45,7 +23,7 @@ nodo_t* emprestadoEsquerda(nodo_t** pai, nodo_t** remover, nodo_t** irmao,int in
 	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
 	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
 	(*irmao)->quantidadeKeys--;
-	(*pai)->filhos[indicePai-1] = *irmao;
+	(*pai)->keys[indicePai-1] = (*remover)->keys[0];
 	return *pai;
 }
 
