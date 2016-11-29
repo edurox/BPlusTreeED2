@@ -16,14 +16,14 @@ nodo_t* emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int
 }
 
 nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai){
-	(int i;
-	for (i = (*remover)->quantidadeKeys; i > 0; i--) {
-		(*remover)->keys[i] = (*remover)->keys[i-1];
-		(*remover)->offsets[i] = (*remover)->offsets[i-1];
+	int i;
+	for (i = (*atual)->quantidadeKeys; i > 0; i--) {
+		(*atual)->keys[i] = (*atual)->keys[i-1];
+		(*atual)->offsets[i] = (*atual)->offsets[i-1];
 	}
-	(*remover)->keys[(*remover)->quantidadeKeys-1] = (*irmao)->keys[(*irmao)->quantidadeKeys-1];
-	(*remover)->offsets[(*remover)->quantidadeKeys-1] = (*irmao)->offsets[(*irmao)->quantidadeKeys-1];
-	(*remover)->quantidadeKeys++;
+	(*atual)->keys[(*atual)->quantidadeKeys-1] = (*irmao)->keys[(*irmao)->quantidadeKeys-1];
+	(*atual)->offsets[(*atual)->quantidadeKeys-1] = (*irmao)->offsets[(*irmao)->quantidadeKeys-1];
+	(*atual)->quantidadeKeys++;
 	//AJUSTA O IRMAO
 	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
 	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
@@ -33,6 +33,7 @@ nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int
 }
 
 nodo_t* verificaRaiz(nodo_t *atual){
+  printf("\n\nVerifica raiz\n\n");
 	if(atual->quantidadeFilhos != 1 && atual->quantidadeKeys)//VERIFICA SE RESTA ELEMENTOS NO NÓ E SE TEM QUANTIDADE DE FILHOS DIFERENTE DE 1
 		return atual;
 	if(atual->quantidadeFilhos == 1){//RESTOU APENAS UM FILHO, MATA O NODO E RETORNA ESSE FILHO
@@ -44,18 +45,20 @@ nodo_t* verificaRaiz(nodo_t *atual){
 		return NULL;
 }
 
-nodo_t* verificaFolha(nodo_t *atual, nodo_t *irmao, int indicePai, int ordem){
-	nodo_t *pai = atual->pai;
-	int i, qtdMinima = (qtdMinima-1)/2;
+nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
+	nodo_t *pai = atual->pai,*irmao;
+	int i, qtdMinima = (ordem-1)/2;
 	
-	if(atual->pai->quantidadeFilhos > indicePai && irmao->quantidadeKeys > qtdMinima ){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-		irmao = atual->pai->filhos[indicePai+1];
-		pai = emprestadoDireitaFolha(&pai,&atual,&irmao,indicePai);
-		return atual;
-	}else if(indicePai && irmao->quantidadeKeys > qtdMinima){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-		irmao = atual->pai->filhos[indicePai-1];
-		pai = emprestadoEsquerdaFolha(&pai,&atual,&irmao,indicePai);
-		return atual;
+	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	  irmao = atual->pai->filhos[indicePai+1];
+	  if(irmao->quantidadeKeys > qtdMinima){
+		return emprestadoDireitaFolha(&pai,&atual,&irmao,indicePai);
+	  }
+	}else if(indicePai){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	  	irmao = atual->pai->filhos[indicePai-1];
+	  if(irmao->quantidadeKeys > qtdMinima){
+		return emprestadoEsquerdaFolha(&pai,&atual,&irmao,indicePai);
+	  }
 	}
 	
 	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
@@ -65,15 +68,20 @@ nodo_t* verificaFolha(nodo_t *atual, nodo_t *irmao, int indicePai, int ordem){
 			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
 			atual->quantidadeKeys++;
 		}
-		mataArvore(irmao);
 		atual->prox = irmao->prox;
-		return atual->pai = removeElemento(atual->pai, indicePai, ordem);
+		printf("\n\naqui\n\n");
+		mataArvore(irmao);
+		return removeElemento(atual->pai, indicePai, ordem);
 	}else{//MERGE COM O IRMAO A ESQUERDA
 		irmao = atual->pai->filhos[indicePai-1];
-		for(i = atual->quantidadeKeys; i >= 0; i--){
-			
+		for(i = 0; i <= atual->quantidadeKeys; i++){
+			irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
+			irmao->offsets[irmao->quantidadeKeys] = atual->offsets[i];
+			irmao->quantidadeKeys++;
 		}
-		return atual;
+		irmao->prox = atual->prox;
+		mataArvore(atual);
+		return removeElemento(irmao->pai, indicePai-1, ordem);
 	}
 }
 
@@ -113,7 +121,7 @@ nodo_t *removeElemento(nodo_t* atual, int indice, int ordem){
 			}
 		}
 		
-		verificaFolha(atual, irmao, i, ordem);
+		verificaFolha(atual, i, ordem);
 		
 	}else{//NAO FOLHA
 		
