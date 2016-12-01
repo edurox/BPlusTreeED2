@@ -61,18 +61,18 @@ nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	  }
 	}
 	
-//  	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
-//  		irmao = atual->pai->filhos[indicePai+1];
-//  		for(i = 0; i < irmao->quantidadeKeys; i++){
-//  			atual->keys[atual->quantidadeKeys] = irmao->keys[i];
-//  			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
-//  			atual->quantidadeKeys++;
-//  		}
-// 			atual->prox = irmao->prox;
-// 			mataArvore(irmao);
-// 		}
-//  		return removeElemento(atual->pai, indicePai, ordem);
-// 	}else{//MERGE COM O IRMAO A ESQUERDA
+  	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
+  		irmao = atual->pai->filhos[indicePai+1];
+  		for(i = 0; i < irmao->quantidadeKeys; i++){
+  			atual->keys[atual->quantidadeKeys] = irmao->keys[i];
+  			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
+  			atual->quantidadeKeys++;
+  		}
+		atual->prox = irmao->prox;
+		atual->pai->filhos[indicePai+1] = atual;//GAMBIARA PARA AJUSTAR OS FILHOS
+		mataArvore(irmao);
+  		return removeElemento(atual->pai, indicePai, ordem);
+ 	}else{//MERGE COM O IRMAO A ESQUERDA
 		irmao = atual->pai->filhos[indicePai-1];
 		for(i = 0; i < atual->quantidadeKeys; i++){
 			irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
