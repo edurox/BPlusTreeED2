@@ -123,7 +123,7 @@ nodo_t *removeElemento(nodo_t* atual, int indice, int ordem){
 		
 	}else{//NAO FOLHA
 		indice++;
-		while(indice < atual->quantidadeKeys){
+		while(indice <= atual->quantidadeKeys){
 			atual->keys[indice-1] = atual->keys[indice];
 			atual->filhos[indice-1] = atual->filhos[indice];
 			indice++;
