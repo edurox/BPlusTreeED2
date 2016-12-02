@@ -17,7 +17,7 @@ nodo_t* emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int
 
 nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai){
 	int i;
-	for (i = (*atual)->quantidadeKeys-1; i >= 0; i--) {
+	for (i = (*atual)->quantidadeKeys; i >= 0; i--) {
 		(*atual)->keys[i] = (*atual)->keys[i-1];
 		(*atual)->offsets[i] = (*atual)->offsets[i-1];
 	}
