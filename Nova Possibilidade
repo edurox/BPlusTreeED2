@@ -33,12 +33,15 @@ nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int
 }
 
 nodo_t* verificaRaiz(nodo_t *atual){
+  
+    printf("PAI = %s\n\n",atual->pai);
+    printf("FILHO = %s\n\n",atual->filhos[0]);
 	if(atual->quantidadeFilhos != 1 && atual->quantidadeKeys){//VERIFICA SE RESTA ELEMENTOS NO NÓ E SE TEM QUANTIDADE DE FILHOS DIFERENTE DE 1
 		return atual;
 	}
 	if(atual->quantidadeFilhos == 1){//RESTOU APENAS UM FILHO, MATA O NODO E RETORNA ESSE FILHO
-		mataOffsets(atual->offsets[0]);
-		atual->keys = NULL;
+		atual->keys[0] = NULL;
+		atual->filhos[0]->pai = NULL;
 		return atual->filhos[0];
 	}
 	if(!atual->quantidadeKeys)
@@ -61,18 +64,19 @@ nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	  }
 	}
 	
-  	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
-  		irmao = atual->pai->filhos[indicePai+1];
-  		for(i = 0; i < irmao->quantidadeKeys; i++){
-  			atual->keys[atual->quantidadeKeys] = irmao->keys[i];
-  			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
-  			atual->quantidadeKeys++;
-  		}
+	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
+		irmao = atual->pai->filhos[indicePai+1];
+		for(i = 0; i < irmao->quantidadeKeys; i++){
+			atual->keys[atual->quantidadeKeys] = irmao->keys[i];
+			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
+			atual->quantidadeKeys++;
+		}
 		atual->prox = irmao->prox;
 		atual->pai->filhos[indicePai+1] = atual;//GAMBIARA PARA AJUSTAR OS FILHOS
 		mataArvore(irmao);
-  		return removeElemento(atual->pai, indicePai, ordem);
- 	}else{//MERGE COM O IRMAO A ESQUERDA
+		return removeElemento(atual->pai, indicePai, ordem);
+	}else{//MERGE COM O IRMAO A ESQUERDA
+	  
 		irmao = atual->pai->filhos[indicePai-1];
 		for(i = 0; i < atual->quantidadeKeys; i++){
 			irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
@@ -83,7 +87,7 @@ nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
 		irmao->prox = atual->prox;
 		mataArvore(atual);
 		return removeElemento(irmao->pai, indicePai, ordem);
-//	}
+	}
 }
 
 nodo_t* verificaInterno(){
