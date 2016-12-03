@@ -8,8 +8,8 @@ nodo_t* emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int
 		(*irmao)->keys[i-1] = (*irmao)->keys[i];
 		(*irmao)->offsets[i-1] = (*irmao)->offsets[i];
 	}
-	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
-	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
+	(*irmao)->keys[i-1] = NULL;
+	mataOffsets((*irmao)->offsets[i-1]);
 	(*irmao)->quantidadeKeys--;
 	(*pai)->keys[indicePai-1] = (*irmao)->keys[0];
 	return *pai;
@@ -54,7 +54,8 @@ nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	  if(irmao->quantidadeKeys > qtdMinima){
 		return emprestadoDireitaFolha(&pai,&atual,&irmao,indicePai);
 	  }
-	}else if(indicePai){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	}
+	if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
 	  	irmao = atual->pai->filhos[indicePai-2];
 	  if(irmao->quantidadeKeys > qtdMinima){
 		return emprestadoEsquerdaFolha(&pai,&atual,&irmao,indicePai);
@@ -87,8 +88,51 @@ nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	}
 }
 
-nodo_t* verificaInterno(){
+nodo_t* emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai){
+	int i;
+	(*atual)->keys[(*atual)->quantidadeKeys] = (*pai)->keys[indicePai];
+	(*atual)->filhos[(*atual)->quantidadeFilhos] = (*irmao)->filhos[0];
+	(*atual)->quantidadeKeys++;
+	(*atual)->quantidadeFilhos++;
+	(*pai)->keys[indicePai] = (*irmao)->keys[0];
+	for(i = 0; i < (*irmao)->quantidadeKeys; i++){
+		(*irmao)->keys[i] = (*irmao)->keys[i+1];
+		(*irmao)->filhos[i] = (*irmao)->filhos[i+1];
+	}
+	(*irmao)->keys[i-1] = NULL;
+	(*irmao)->filhos[i-1] = NULL;
+	(*irmao)->quantidadeKeys--;
+	(*irmao)->quantidadeFilhos--;
+}
+
+nodo_t* emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai){
+	int i;
+	for (i = (*atual)->quantidadeKeys; i >= 0; i--) {
+		(*atual)->keys[i] = (*atual)->keys[i+1];
+		(*atual)->offsets[i] = (*atual)->offsets[i+1];
+	}
+	(*irmao)->quantidadeKeys--;
+	(*irmao)->quantidadeFilhos--;
+	(*atual)->keys[0] = (*pai)->keys[indicePai];
+	(*atual)->filhos[0] = (*irmao)->filhos[(*irmao)->quantidadeFilhos];
+	(*pai)->keys[indicePai] = (*irmao)->keys[(*irmao)->quantidadeKeys];	
+}
+
+nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem){
+	nodo_t *pai = atual->pai,*irmao;
+	int i, qtdMinima = (ordem-1)/2;
 	
+	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	  irmao = atual->pai->filhos[indicePai];
+	  if(irmao->quantidadeKeys > qtdMinima){
+		return emprestadoDireitaInterna(&pai,&atual,&irmao,indicePai);
+	  }
+	}else if(indicePai){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	  	irmao = atual->pai->filhos[indicePai-2];
+	  if(irmao->quantidadeKeys > qtdMinima){
+		return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
+	  }
+	}
 }
 
 nodo_t *removeElemento(nodo_t* atual, int indice, int ordem){
