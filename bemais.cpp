@@ -395,8 +395,7 @@ nodo_t* verificaRaiz(nodo_t **atual){
 		(*atual)->filhos[0]->pai = NULL;
 		return (*atual)->filhos[0];
 	}
-	if(!(*atual)->quantidadeKeys)
-		return NULL;
+	return NULL;
 }
 
 nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
@@ -483,39 +482,39 @@ nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	  }
 	}
 	if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-		irmao = pai->filhos[indicePai-2];
-		if(irmao->quantidadeKeys > qtdMinima){
-			return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
-		}
+	  irmao = pai->filhos[indicePai-2];
+	  if(irmao->quantidadeKeys > qtdMinima){
+	    return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
+	  }
 	}
 	
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
 	  irmao = pai->filhos[indicePai];
 	  atual->keys[atual->quantidadeKeys] = pai->keys[indicePai-1];
-	  atual->filhos[atual->quantidadeFilhos] = irmao->filhos[0];
 	  atual->quantidadeKeys++;
-	  atual->quantidadeFilhos++;
-	  for(i = 1; i < irmao->quantidadeKeys; i++){
+	  for(i = 0; i < irmao->quantidadeKeys; i++){
 	    atual->keys[atual->quantidadeKeys] = irmao->keys[i];
 	    atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
 	    atual->quantidadeKeys++;
 	    atual->quantidadeFilhos++;
 	  }
+	  atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
+	  atual->quantidadeFilhos++;
 	  free(irmao);
 	  pai->filhos[indicePai] = atual;
 	  removeElemento(pai, indicePai-1, ordem);
 	}else{ //MERGE COM O IRMAO A ESQUERDA
 	  irmao = pai->filhos[indicePai-2];
-	  irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-1];
-	  irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[0];
+	  irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-2];
 	  irmao->quantidadeKeys++;
-	  irmao->quantidadeFilhos++;
-	  for(i = 1; i < atual->quantidadeKeys; i++){
+	  for(i = 0; i < atual->quantidadeKeys; i++){
 	    irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
 	    irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
 	    irmao->quantidadeKeys++;
 	    irmao->quantidadeFilhos++;
 	  }
+	  irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
+	  atual->quantidadeFilhos++;
 	  free(atual);
 	  pai->filhos[indicePai-1] = irmao;
 	  removeElemento(pai, indicePai-1, ordem);
