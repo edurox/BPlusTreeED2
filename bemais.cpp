@@ -481,13 +481,12 @@ nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	  if(irmao->quantidadeKeys > qtdMinima){
 		return emprestadoDireitaInterna(&pai,&atual,&irmao,indicePai);
 	  }
-	}else{
-	  if(indicePai){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	    irmao = pai->filhos[indicePai-2];
-	    if(irmao->quantidadeKeys > qtdMinima){
-	      return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
-	    }
-	  }
+	}
+	if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+		irmao = pai->filhos[indicePai-2];
+		if(irmao->quantidadeKeys > qtdMinima){
+			return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
+		}
 	}
 	
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
