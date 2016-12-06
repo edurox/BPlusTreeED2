@@ -502,7 +502,7 @@ nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	    atual->quantidadeFilhos++;
 	  }
 	  free(irmao);
-	  pai->filhos[indicePai-1] = atual;
+	  pai->filhos[indicePai] = atual;
 	  removeElemento(pai, indicePai-1, ordem);
 	}else{ //MERGE COM O IRMAO A ESQUERDA
 	  irmao = pai->filhos[indicePai-2];
