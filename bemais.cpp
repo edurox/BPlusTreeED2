@@ -90,9 +90,9 @@ nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem) {
 }
 
 int bulk_loading(nodo_t* &arvore, vind &indices, int ordem){
-  nodo_t *filhoAtual = NULL, *paiAtual = NULL;
+  nodo_t *filhoAtual = NULL, *ant, *paiAtual = ant = NULL;
   offsets_t *novo;
-  int iteradorIndices = 0, first = 1, condicaoParaFor = (ordem-1)/2;
+  int iteradorIndices = 0, first = 1, condicaoParaFor = (ordem-1)/2+1;
   
   //cria o primeiro pai
   paiAtual = criaNodo(ordem, false);
@@ -125,6 +125,11 @@ int bulk_loading(nodo_t* &arvore, vind &indices, int ordem){
       paiAtual->quantidadeFilhos = 1;
     }
     else if (checaPai(filhoAtual, &paiAtual, filhoAtual->keys[0], ordem)) { return 1; }
+    
+    if (ant) {
+      ant->prox = filhoAtual;
+    }
+    ant = filhoAtual;
   }
 
   filhoAtual = trataExcecoes(paiAtual, filhoAtual, ordem);
@@ -370,8 +375,8 @@ nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int
 		(*atual)->keys[i] = (*atual)->keys[i-1];
 		(*atual)->offsets[i] = (*atual)->offsets[i-1];
 	}
-	(*atual)->keys[(*atual)->quantidadeKeys-1] = (*irmao)->keys[(*irmao)->quantidadeKeys-1];
-	(*atual)->offsets[(*atual)->quantidadeKeys-1] = (*irmao)->offsets[(*irmao)->quantidadeKeys-1];
+	(*atual)->keys[0] = (*irmao)->keys[(*irmao)->quantidadeKeys-1];
+	(*atual)->offsets[0] = (*irmao)->offsets[(*irmao)->quantidadeKeys-1];
 	(*atual)->quantidadeKeys++;
 	//AJUSTA O IRMAO
 	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
@@ -381,16 +386,16 @@ nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int
 	return *pai;
 }
 
-nodo_t* verificaRaiz(nodo_t *atual){
-	if(atual->quantidadeFilhos != 1 && atual->quantidadeKeys){//VERIFICA SE RESTA ELEMENTOS NO NÓ E SE TEM QUANTIDADE DE FILHOS DIFERENTE DE 1
-		return atual;
+nodo_t* verificaRaiz(nodo_t **atual){
+	if((*atual)->quantidadeFilhos != 1 && (*atual)->quantidadeKeys){//VERIFICA SE RESTA ELEMENTOS NO NÓ E SE TEM QUANTIDADE DE FILHOS DIFERENTE DE 1
+		return (*atual);
 	}
-	if(atual->quantidadeFilhos == 1){//RESTOU APENAS UM FILHO, MATA O NODO E RETORNA ESSE FILHO
-		atual->keys[0] = NULL;
-		atual->filhos[0]->pai = NULL;
-		return atual->filhos[0];
+	if((*atual)->quantidadeFilhos == 1){//RESTOU APENAS UM FILHO, MATA O NODO E RETORNA ESSE FILHO
+		(*atual)->keys[0] = NULL;
+		(*atual)->filhos[0]->pai = NULL;
+		return (*atual)->filhos[0];
 	}
-	if(!atual->quantidadeKeys)
+	if(!(*atual)->quantidadeKeys)
 		return NULL;
 }
 
@@ -398,42 +403,42 @@ nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	nodo_t *pai = atual->pai,*irmao;
 	int i, qtdMinima = (ordem-1)/2;
 	
-	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	  irmao = atual->pai->filhos[indicePai];
+	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	  irmao = pai->filhos[indicePai];
 	  if(irmao->quantidadeKeys > qtdMinima){
 		return emprestadoDireitaFolha(&pai,&atual,&irmao,indicePai);
 	  }
 	}
 	if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	      irmao = atual->pai->filhos[indicePai-2];
+	      irmao = pai->filhos[indicePai-2];
 	      if(irmao->quantidadeKeys > qtdMinima){
 		    return emprestadoEsquerdaFolha(&pai,&atual,&irmao,indicePai);
 	      }
 	}
 	
-	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
-		irmao = atual->pai->filhos[indicePai];
+	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
+		irmao = pai->filhos[indicePai];
 		for(i = 0; i < irmao->quantidadeKeys; i++){
 			atual->keys[atual->quantidadeKeys] = irmao->keys[i];
 			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
 			atual->quantidadeKeys++;
 		}
 		atual->prox = irmao->prox;
-		atual->pai->filhos[indicePai] = atual;
-		atual->pai->keys[indicePai-1] = atual->pai->keys[indicePai];
-		mataArvore(irmao);
-		return removeElemento(atual->pai, indicePai, ordem);
+		pai->filhos[indicePai] = atual;
+		pai->keys[indicePai-1] = pai->keys[indicePai];
+		free(irmao);
+		return removeElemento(pai, indicePai, ordem);
 	}else{//MERGE COM O IRMAO A ESQUERDA
-		irmao = atual->pai->filhos[indicePai-2];
+		irmao = pai->filhos[indicePai-2];
 		for(i = 0; i < atual->quantidadeKeys; i++){
 			irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
 			irmao->offsets[irmao->quantidadeKeys] = atual->offsets[i];
 			irmao->quantidadeKeys++;
 		}
-		atual->pai->keys[indicePai-2] = atual->pai->keys[indicePai-1];
+		pai->keys[indicePai-2] = pai->keys[indicePai-1];
 		irmao->prox = atual->prox;
-		mataArvore(atual);
-		return removeElemento(irmao->pai, indicePai-1, ordem);
+		free(atual);
+		return removeElemento(pai, indicePai-1, ordem);
 	}
 }
 
@@ -471,16 +476,50 @@ nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	nodo_t *pai = atual->pai,*irmao;
 	int i, qtdMinima = (ordem-1)/2;
 	
-	if(atual->pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	  irmao = atual->pai->filhos[indicePai];
+	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	  irmao = pai->filhos[indicePai];
 	  if(irmao->quantidadeKeys > qtdMinima){
 		return emprestadoDireitaInterna(&pai,&atual,&irmao,indicePai);
 	  }
-	}else if(indicePai){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	  	irmao = atual->pai->filhos[indicePai-2];
-	  if(irmao->quantidadeKeys > qtdMinima){
-		return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
+	}else{
+	  if(indicePai){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	    irmao = pai->filhos[indicePai-2];
+	    if(irmao->quantidadeKeys > qtdMinima){
+	      return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
+	    }
 	  }
+	}
+	
+	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
+	  irmao = pai->filhos[indicePai];
+	  atual->keys[atual->quantidadeKeys] = pai->keys[indicePai-1];
+	  atual->filhos[atual->quantidadeFilhos] = irmao->filhos[0];
+	  atual->quantidadeKeys++;
+	  atual->quantidadeFilhos++;
+	  for(i = 1; i < irmao->quantidadeKeys; i++){
+	    atual->keys[atual->quantidadeKeys] = irmao->keys[i];
+	    atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
+	    atual->quantidadeKeys++;
+	    atual->quantidadeFilhos++;
+	  }
+	  free(irmao);
+	  pai->filhos[indicePai-1] = atual;
+	  removeElemento(pai, indicePai-1, ordem);
+	}else{ //MERGE COM O IRMAO A ESQUERDA
+	  irmao = pai->filhos[indicePai-2];
+	  irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-1];
+	  irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[0];
+	  irmao->quantidadeKeys++;
+	  irmao->quantidadeFilhos++;
+	  for(i = 1; i < atual->quantidadeKeys; i++){
+	    irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
+	    irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
+	    irmao->quantidadeKeys++;
+	    irmao->quantidadeFilhos++;
+	  }
+	  free(atual);
+	  pai->filhos[indicePai-1] = irmao;
+	  removeElemento(pai, indicePai-1, ordem);
 	}
 }
 
@@ -497,14 +536,13 @@ nodo_t *removeElemento(nodo_t* atual, int indice, int ordem){
 			indice++;
 		}
 		atual->keys[indice] = NULL;
-		mataOffsets(atual->offsets[indice]);
+		atual->offsets[indice] = NULL;
 		atual->quantidadeKeys--;
 		if(!atual->pai)//A REMOCAO FOI NA RAIZ
-			return (verificaRaiz(atual));
+			return (verificaRaiz(&atual));
 		
 		if(atual->quantidadeKeys >= (ordem-1)/2)//AINDA RESTAM O MINIMO DE ELEMENTOS
 			return atual;
-
 		//NAO TERM A QUANTIDADE DE ELEMTNTOS MINIMO
 		//ENCONTRA O INDICE NO PAI PARA CONFERIR SE É POSSIVEL PEGAR EMPRESTADO
 		for(i = 0; i <= atual->pai->quantidadeFilhos; i++){
@@ -512,7 +550,6 @@ nodo_t *removeElemento(nodo_t* atual, int indice, int ordem){
 				break;
 			}
 		}
-		
 		verificaFolha(atual, i+1, ordem);
 		
 	}else{//NAO FOLHA
@@ -528,7 +565,7 @@ nodo_t *removeElemento(nodo_t* atual, int indice, int ordem){
 		atual->quantidadeFilhos--;
 		
 		if(!atual->pai)//A REMOCAO FOI NA RAIZ
-			return (verificaRaiz(atual));
+			return (verificaRaiz(&atual));
 		
 		if(atual->quantidadeKeys >= (ordem-1)/2)//AINDA RESTAM O MINIMO DE ELEMENTOS
 			return atual;
