@@ -460,15 +460,19 @@ nodo_t* emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,in
 
 nodo_t* emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai){
 	int i;
-	for (i = (*atual)->quantidadeKeys; i > 0; i--) {
-		(*atual)->keys[i] = (*atual)->keys[i+1];
-		(*atual)->offsets[i] = (*atual)->offsets[i+1];
+	for (i = (*atual)->quantidadeFilhos; i > 0; i--) {
+		(*atual)->keys[i] = (*atual)->keys[i-1];
+		(*atual)->filhos[i] = (*atual)->filhos[i-1];
 	}
+	(*atual)->keys[0] = (*pai)->keys[indicePai-2];
+	(*atual)->filhos[0] = (*irmao)->filhos[(*irmao)->quantidadeFilhos-1];
+	(*atual)->quantidadeKeys++;
+	(*atual)->quantidadeFilhos++;
 	(*irmao)->quantidadeKeys--;
 	(*irmao)->quantidadeFilhos--;
-	(*atual)->keys[0] = (*pai)->keys[indicePai];
-	(*atual)->filhos[0] = (*irmao)->filhos[(*irmao)->quantidadeFilhos];
-	(*pai)->keys[indicePai] = (*irmao)->keys[(*irmao)->quantidadeKeys];	
+	(*pai)->keys[indicePai-2] = (*irmao)->keys[(*irmao)->quantidadeKeys];
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	(*irmao)->filhos[(*irmao)->quantidadeFilhos] = NULL;
 }
 
 nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem){
