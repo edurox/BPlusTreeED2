@@ -88,11 +88,11 @@ void imprimeMenu();
 nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem);
 
 
-nodo_t *removeElemento(nodo_t* atual, int indice, int ordem);
-nodo_t* verificaRaiz(nodo_t *atual);
-nodo_t* verificaFolha(nodo_t *atual, int indicePai, int ordem);
-nodo_t* verificaInterno(nodo_t *atual, int indicePai, int ordem);
-nodo_t* emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int indicePai);
-nodo_t* emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
-nodo_t* emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
-nodo_t* emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
+void removeElemento(nodo_t* atual, int indice, int ordem);
+void verificaRaiz(nodo_t **atual);
+void verificaFolha(nodo_t *atual, int indicePai, int ordem);
+void verificaInterno(nodo_t *atual, int indicePai, int ordem);
+void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int indicePai);
+void emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
+void emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
+void emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
