@@ -79,11 +79,9 @@ nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem) {
       familiarBeneficiario->offsets[i] = filhoAtual->offsets[j];
       familiarBeneficiario->quantidadeKeys++;
     }
-    filhoAtual->quantidadeKeys = 0; //coloca 0 se nao o mataArvore vai apagar todos os offsets que agora estao no familiarBeneficiario
-//    paiAtual->quantidadeFilhos--;
-//    paiAtual->quantidadeKeys--;
-    mataArvore(filhoAtual);
+    nodo_t *temp = filhoAtual;
     filhoAtual = familiarBeneficiario;
+    free(temp);
     removeUltimo(paiAtual, ordem); //remove um de todos os ancestrais do antigo filhoAtual
   }
   return filhoAtual;
@@ -92,7 +90,7 @@ nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem) {
 int bulk_loading(nodo_t* &arvore, vind &indices, int ordem){
   nodo_t *filhoAtual = NULL, *ant, *paiAtual = ant = NULL;
   offsets_t *novo;
-  int iteradorIndices = 0, first = 1, condicaoParaFor = (ordem-1)/2+1;
+  int iteradorIndices = 0, first = 1, condicaoParaFor = (ordem-1)/2;
   
   //cria o primeiro pai
   paiAtual = criaNodo(ordem, false);
