@@ -1,4 +1,0 @@
-Erro na funcao trata execoes quando junta o ultimo no com o penultimo;
-Fazer o merge de nodo interno da arvore;
-Corrigir erro de quando o merge mata o no pai e os dois filhos se tornam um no so;
-Fazer testes
