@@ -67,6 +67,12 @@ int main(int argc, char *argv[]) {
 		}
 			
 		removeElemento(nodoDeBusca, indiceBusca, ordem);
+		
+		if(!arvore->folha && !arvore->filhos[1]){
+		    nodoDeBusca = arvore->filhos[0];
+		    free(arvore);
+		    arvore = nodoDeBusca;
+		}
     	break;
     default:
       printf("Opção inválida\n");
