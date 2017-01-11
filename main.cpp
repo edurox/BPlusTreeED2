@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
 		
 		if(!arvore->folha && !arvore->filhos[1]){
 		    nodoDeBusca = arvore->filhos[0];
+		    nodoDeBusca->pai = NULL;
 		    free(arvore);
 		    arvore = nodoDeBusca;
 		}
