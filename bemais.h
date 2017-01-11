@@ -89,7 +89,6 @@ nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem);
 
 
 void removeElemento(nodo_t* atual, int indice, int ordem);
-void verificaRaiz(nodo_t **atual);
 void verificaFolha(nodo_t *atual, int indicePai, int ordem);
 void verificaInterno(nodo_t *atual, int indicePai, int ordem);
 void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int indicePai);
