@@ -384,6 +384,9 @@ void verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	nodo_t *pai = atual->pai,*irmao;
 	int i, qtdMinima = (ordem-1)/2;
 	
+	printf("keys = %i\n\n",pai->quantidadeKeys);
+	printf("filhos = %i\n\n",pai->quantidadeFilhos);
+	
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
 	  irmao = pai->filhos[indicePai];
 	  if(irmao->quantidadeKeys > qtdMinima){
@@ -461,7 +464,6 @@ void emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int 
 void verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	nodo_t *pai = atual->pai,*irmao;
 	int i, qtdMinima = (ordem-1)/2;
-	
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
 	  irmao = pai->filhos[indicePai];
 	  if(irmao->quantidadeKeys > qtdMinima){
@@ -481,10 +483,12 @@ void verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	  atual->quantidadeKeys++;
 	  for(i = 0; i < irmao->quantidadeKeys; i++){
 	    atual->keys[atual->quantidadeKeys] = irmao->keys[i];
+	    irmao->filhos[i]->pai = atual;
 	    atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
 	    atual->quantidadeKeys++;
 	    atual->quantidadeFilhos++;
 	  }
+	  irmao->filhos[i]->pai = atual;
 	  atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
 	  atual->quantidadeFilhos++;
 	  free(irmao);
@@ -492,17 +496,19 @@ void verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	  return removeElemento(pai, indicePai-1, ordem);
 	}else{ //MERGE COM O IRMAO A ESQUERDA
 	  irmao = pai->filhos[indicePai-2];
-	  irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-2];
+	  if(indicePai > 2) irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-3];
+	  else irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-2];
 	  irmao->quantidadeKeys++;
 	  for(i = 0; i < atual->quantidadeKeys; i++){
 	    irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
+	    atual->filhos[i]->pai = irmao;
 	    irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
 	    irmao->quantidadeKeys++;
 	    irmao->quantidadeFilhos++;
 	  }
+	  atual->filhos[i]->pai = irmao;
 	  irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
-	  atual->quantidadeFilhos++;
-	  pai->filhos[indicePai-1] = irmao;
+	  irmao->quantidadeFilhos++;
 	  free(atual);
 	  return removeElemento(pai, indicePai-1, ordem);
 	}
@@ -541,13 +547,14 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 		
 	}else{//NAO FOLHA
 		indice++;
-		while(indice <= atual->quantidadeKeys){
+		while(indice < atual->quantidadeKeys){
 			atual->keys[indice-1] = atual->keys[indice];
 			atual->filhos[indice-1] = atual->filhos[indice];
 			indice++;
 		}
+		atual->filhos[indice-1] = atual->filhos[indice];
 		atual->keys[indice-1] = NULL;
-		atual->filhos[indice-1] = NULL;
+		atual->filhos[indice] = NULL;
 		atual->quantidadeKeys--;
 		atual->quantidadeFilhos--;
 		
