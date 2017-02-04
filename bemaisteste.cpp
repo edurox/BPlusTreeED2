@@ -360,7 +360,7 @@ void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int in
 		(*irmao)->keys[i-1] = (*irmao)->keys[i];
 		(*irmao)->offsets[i-1] = (*irmao)->offsets[i];
 	}
-	(*irmao)->keys[i] = NULL;
+	(*irmao)->keys[i] = 0;
 	mataOffsets((*irmao)->offsets[i]);
 	(*irmao)->quantidadeKeys--;
 	(*pai)->keys[indicePai-1] = (*irmao)->keys[0];
@@ -376,7 +376,7 @@ void emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int in
 	(*atual)->quantidadeKeys++;
 	(*atual)->keys[0] = (*irmao)->keys[(*irmao)->quantidadeKeys];
 	(*atual)->offsets[0] = (*irmao)->offsets[(*irmao)->quantidadeKeys];
-	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = 0;
 	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
 	(*pai)->keys[indicePai-2] = (*atual)->keys[0];
 }
@@ -436,7 +436,7 @@ void emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int i
 		(*irmao)->keys[i] = (*irmao)->keys[i+1];
 		(*irmao)->filhos[i] = (*irmao)->filhos[i+1];
 	}
-	(*irmao)->keys[i] = NULL;
+	(*irmao)->keys[i] = 0;
 	(*irmao)->filhos[i] = NULL;
 	(*irmao)->quantidadeKeys--;
 	(*irmao)->quantidadeFilhos--;
@@ -455,7 +455,7 @@ void emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int 
 	(*irmao)->quantidadeKeys--;
 	(*irmao)->quantidadeFilhos--;
 	(*pai)->keys[indicePai-2] = (*irmao)->keys[(*irmao)->quantidadeKeys];
-	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = 0;
 	(*irmao)->filhos[(*irmao)->quantidadeFilhos] = NULL;
 }
 
@@ -526,7 +526,7 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 			atual->offsets[indice-1] = atual->offsets[indice];
 			indice++;
 		}
-		atual->keys[indice-1] = NULL;
+		atual->keys[indice-1] = 0;
 		atual->offsets[indice-1] = NULL;
 		atual->quantidadeKeys--;
 
@@ -543,6 +543,7 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 				break;
 			}
 		}
+
 		return verificaFolha(atual, i+1, ordem);
 		
 	}else{//NAO FOLHA
@@ -553,7 +554,7 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 			indice++;
 		}
 		atual->filhos[indice-1] = atual->filhos[indice];
-		atual->keys[indice-1] = NULL;
+		atual->keys[indice-1] = 0;
 		atual->filhos[indice] = NULL;
 		atual->quantidadeKeys--;
 		atual->quantidadeFilhos--;
