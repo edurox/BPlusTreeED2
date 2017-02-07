@@ -46,7 +46,7 @@ FILE* abrirArquivo(char arquivoEntrada[]){
   FILE *entrada;
   entrada = fopen(arquivoEntrada, "a+"); //abre o arquivo de entrada que vai ser passado de parametro quando executar o programa
   if (!entrada) { printf("Nao abriu entrada\n"); return NULL; }
-  fseek(entrada, 0, SEEK_SET); //retorna o buffer pro comeÃ§o (so pra garantir)
+  fseek(entrada, 0, SEEK_SET); //retorna o buffer pro começo (so pra garantir)
   return entrada;
 }
 
@@ -55,14 +55,14 @@ bool compareIndex(const index_t &_a, const index_t &_b) {
 }
 
 nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem) {
-  //excecÃ£o: Ãºnico filho tem menos entrada que o mÃ­nimo da ordem
+  //excecão: único filho tem menos entrada que o mínimo da ordem
   if (!paiAtual->pai && paiAtual->quantidadeFilhos == 1 && filhoAtual) {
     filhoAtual->pai = NULL;
     paiAtual->quantidadeFilhos = 0;
     mataArvore(paiAtual);
     return filhoAtual;
   }
-  //excecÃ£o: Ãºltimo filho tem menos que a ordem â??
+  //excecão: último filho tem menos que a ordem �??
   if (filhoAtual && filhoAtual->quantidadeKeys < (ordem-1)/2) {
     nodo_t *familiarBeneficiario = NULL;
     int i, j;
@@ -79,7 +79,8 @@ nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem) {
       familiarBeneficiario->offsets[i] = filhoAtual->offsets[j];
       familiarBeneficiario->quantidadeKeys++;
     }
-    nodo_t *temp = filhoAtual;
+    filhoAtual->quantidadeKeys = 0;
+    mataArvore(filhoAtual);
     filhoAtual = familiarBeneficiario;
     removeUltimo(paiAtual, ordem); //remove um de todos os ancestrais do antigo filhoAtual
   }
@@ -98,7 +99,7 @@ int bulk_loading(nodo_t* &arvore, vind &indices, int ordem){
   while (iteradorIndices < (int)indices.size()) {
     filhoAtual = criaNodo(ordem, true);
 
-    //preenche o nodo filhoAtual, que Ã© o filho do paiAtual
+    //preenche o nodo filhoAtual, que é o filho do paiAtual
     for(int j = 0; j <= condicaoParaFor && iteradorIndices < (int)indices.size(); iteradorIndices++, j++){
       //se o hash a ser inserido for o mesmo que o anterior, ele coloca o offset no mesmo
       if (j && filhoAtual->keys[j-1] == indices[iteradorIndices].hash) { j--; }
@@ -108,7 +109,7 @@ int bulk_loading(nodo_t* &arvore, vind &indices, int ordem){
 	filhoAtual->quantidadeKeys++;
       }
 
-      //cria novo offset, passando como parametro o offset da hash atual e ligando o novo offset no comeÃ§o da lista
+      //cria novo offset, passando como parametro o offset da hash atual e ligando o novo offset no começo da lista
       novo = NULL;
       novo = criaOffset(indices[iteradorIndices].offset, filhoAtual->offsets[j]);
       if (!novo) { printf("Erro ao criar offset %lld", indices[iteradorIndices].offset); return 1; }
@@ -244,7 +245,7 @@ int imprimeArvore(nodo_t *arvore) {
   int numeroNodo = 0;
 
   //cria o comando
-  sprintf(comando, "dot %s -Tpng -o saida.png && kde-open saida.png\n", nomeArquivo);
+  sprintf(comando, "dot %s -Tpng -o saida.png\n", nomeArquivo);
 
   //abre dotFile
   dotFile = fopen(nomeArquivo, "w");
@@ -270,13 +271,13 @@ void imprimeNodos(FILE *dotFile, nodo_t *n, int *numeroNodo, int liga) {
   //imprime esse nodo
   fprintf(dotFile, "%d [label=\"", esseNumero);
   for (int i = 0; i < n->quantidadeKeys; i++)
-    fprintf(dotFile, "%s %lld", i? " Â»":"", n->keys[i]);
+    fprintf(dotFile, "%s %lld", i? " »":"", n->keys[i]);
   fprintf(dotFile, "\"];\n");
   fprintf(dotFile, "%d [shape=box]\n", esseNumero);
 }
 
 void removeUltimo(nodo_t *paiAtual, int ordem) {
-  if (paiAtual->quantidadeKeys > (ordem-1)/2 || paiAtual->pai == NULL) { //se ele tem suficiente ou Ã© raiz
+  if (paiAtual->quantidadeKeys > (ordem-1)/2 || paiAtual->pai == NULL) { //se ele tem suficiente ou é raiz
     paiAtual->quantidadeKeys--;
     paiAtual->quantidadeFilhos--;
     if (paiAtual->quantidadeKeys <= 0) {
@@ -340,9 +341,9 @@ void imprimeTupla(nodo_t *nodoAtual, int indiceElemento, FILE *arquivo) {
 }
 
 void imprimeMenu() {
-  printf("Digite a opÃ§Ã£o desejada\n");
+  printf("Digite a opção desejada\n");
   printf("0 Sair\n");
-  printf("1 Imprimir a Ã¡rvore\n");
+  printf("1 Imprimir a árvore\n");
   printf("2 Buscar\n");
   printf("3 Apagar\n");
 }
@@ -359,7 +360,7 @@ void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int in
 		(*irmao)->keys[i-1] = (*irmao)->keys[i];
 		(*irmao)->offsets[i-1] = (*irmao)->offsets[i];
 	}
-	(*irmao)->keys[i] = NULL;
+	(*irmao)->keys[i] = 0;
 	mataOffsets((*irmao)->offsets[i]);
 	(*irmao)->quantidadeKeys--;
 	(*pai)->keys[indicePai-1] = (*irmao)->keys[0];
@@ -375,17 +376,23 @@ void emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int in
 	(*atual)->quantidadeKeys++;
 	(*atual)->keys[0] = (*irmao)->keys[(*irmao)->quantidadeKeys];
 	(*atual)->offsets[0] = (*irmao)->offsets[(*irmao)->quantidadeKeys];
-	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = 0;
 	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
 	(*pai)->keys[indicePai-2] = (*atual)->keys[0];
+}
+
+void mergeFolha(nodo_t **nodoQueObedece, nodo_t **nodoQueManda){
+  int i;
+  for(i = 0; i < (*nodoQueManda)->quantidadeKeys; i++){
+    (*nodoQueObedece)->keys[(*nodoQueObedece)->quantidadeKeys] = (*nodoQueManda)->keys[i];
+    (*nodoQueObedece)->offsets[(*nodoQueObedece)->quantidadeKeys] = (*nodoQueManda)->offsets[i];
+    (*nodoQueObedece)->quantidadeKeys++;
+  }
 }
 
 void verificaFolha(nodo_t *atual, int indicePai, int ordem){
 	nodo_t *pai = atual->pai,*irmao;
 	int i, qtdMinima = (ordem-1)/2;
-
-	printf("keys = %i\n\n",pai->quantidadeKeys);
-	printf("filhos = %i\n\n",pai->quantidadeFilhos);
 
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
 	  irmao = pai->filhos[indicePai];
@@ -393,35 +400,27 @@ void verificaFolha(nodo_t *atual, int indicePai, int ordem){
 		return emprestadoDireitaFolha(&pai,&atual,&irmao,indicePai);
 	  }
 	}
-  if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-    irmao = pai->filhos[indicePai-2];
-    if(irmao->quantidadeKeys > qtdMinima){
-      return emprestadoEsquerdaFolha(&pai,&atual,&irmao,indicePai);
-    }
-  }
-  
+	if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
+	      irmao = pai->filhos[indicePai-2];
+	      if(irmao->quantidadeKeys > qtdMinima){
+		    return emprestadoEsquerdaFolha(&pai,&atual,&irmao,indicePai);
+	      }
+	}
+
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
 		irmao = pai->filhos[indicePai];
-		for(i = 0; i < irmao->quantidadeKeys; i++){
-			atual->keys[atual->quantidadeKeys] = irmao->keys[i];
-			atual->offsets[atual->quantidadeKeys] = irmao->offsets[i];
-			atual->quantidadeKeys++;
-		}
+		mergeFolha(&atual, &irmao);
 		atual->prox = irmao->prox;
-		pai->filhos[indicePai] = atual;
 		pai->keys[indicePai-1] = pai->keys[indicePai];
+		pai->filhos[indicePai] = atual;
 		free(irmao);
 		return removeElemento(pai, indicePai, ordem);
 	}else{//MERGE COM O IRMAO A ESQUERDA
 		irmao = pai->filhos[indicePai-2];
-		for(i = 0; i < atual->quantidadeKeys; i++){
-			irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
-			irmao->offsets[irmao->quantidadeKeys] = atual->offsets[i];
-			irmao->quantidadeKeys++;
-		}
+    mergeFolha(&irmao, &atual);
 		pai->keys[indicePai-2] = pai->keys[indicePai-1];
-		pai->filhos[indicePai-1] = irmao;
-		irmao->prox = atual->prox;
+		pai->filhos[indicePai] = irmao;
+		irmao->prox = NULL;
 		free(atual);
 		return removeElemento(pai, indicePai-1, ordem);
 	}
@@ -430,6 +429,7 @@ void verificaFolha(nodo_t *atual, int indicePai, int ordem){
 void emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai){
 	int i;
 	(*atual)->keys[(*atual)->quantidadeKeys] = (*pai)->keys[indicePai-1];
+	(*irmao)->filhos[0]->pai = (*atual);
 	(*atual)->filhos[(*atual)->quantidadeFilhos] = (*irmao)->filhos[0];
 	(*atual)->quantidadeKeys++;
 	(*atual)->quantidadeFilhos++;
@@ -438,7 +438,7 @@ void emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int i
 		(*irmao)->keys[i] = (*irmao)->keys[i+1];
 		(*irmao)->filhos[i] = (*irmao)->filhos[i+1];
 	}
-	(*irmao)->keys[i] = NULL;
+	(*irmao)->keys[i] = 0;
 	(*irmao)->filhos[i] = NULL;
 	(*irmao)->quantidadeKeys--;
 	(*irmao)->quantidadeFilhos--;
@@ -451,66 +451,62 @@ void emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int 
 		(*atual)->filhos[i] = (*atual)->filhos[i-1];
 	}
 	(*atual)->keys[0] = (*pai)->keys[indicePai-2];
+	(*irmao)->filhos[(*irmao)->quantidadeFilhos-1]->pai = (*atual);
 	(*atual)->filhos[0] = (*irmao)->filhos[(*irmao)->quantidadeFilhos-1];
 	(*atual)->quantidadeKeys++;
 	(*atual)->quantidadeFilhos++;
 	(*irmao)->quantidadeKeys--;
 	(*irmao)->quantidadeFilhos--;
 	(*pai)->keys[indicePai-2] = (*irmao)->keys[(*irmao)->quantidadeKeys];
-	(*irmao)->keys[(*irmao)->quantidadeKeys] = NULL;
+	(*irmao)->keys[(*irmao)->quantidadeKeys] = 0;
 	(*irmao)->filhos[(*irmao)->quantidadeFilhos] = NULL;
 }
 
+void mergeInterno(nodo_t **nodoQueObedece, nodo_t **nodoQueManda){
+  int i;
+
+  for(i = 0; i < (*nodoQueManda)->quantidadeKeys; i++){
+    (*nodoQueObedece)->keys[(*nodoQueObedece)->quantidadeKeys] = (*nodoQueManda)->keys[i];
+    (*nodoQueManda)->filhos[i]->pai = (*nodoQueObedece);
+    (*nodoQueObedece)->filhos[(*nodoQueObedece)->quantidadeFilhos] = (*nodoQueManda)->filhos[i];
+    (*nodoQueObedece)->quantidadeKeys++;
+    (*nodoQueObedece)->quantidadeFilhos++;
+  }
+  (*nodoQueManda)->filhos[i]->pai = (*nodoQueObedece);
+  (*nodoQueObedece)->filhos[(*nodoQueObedece)->quantidadeFilhos] = (*nodoQueManda)->filhos[i];
+  (*nodoQueObedece)->quantidadeFilhos++;
+}
 void verificaInterno(nodo_t *atual, int indicePai, int ordem){
 	nodo_t *pai = atual->pai,*irmao;
 	int i, qtdMinima = (ordem-1)/2;
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	  irmao = pai->filhos[indicePai];
-	  if(irmao->quantidadeKeys > qtdMinima){
-		return emprestadoDireitaInterna(&pai,&atual,&irmao,indicePai);
-	  }
+		irmao = pai->filhos[indicePai];
+		if(irmao->quantidadeKeys > qtdMinima){
+			return emprestadoDireitaInterna(&pai,&atual,&irmao,indicePai);
+		}
 	}
 	if(indicePai-1){//EXISTE IRMAO A ESQUERDA? POSSO PEGAR EMPRESTA DESSE IRMAO?
-	  irmao = pai->filhos[indicePai-2];
-	  if(irmao->quantidadeKeys > qtdMinima){
-	    return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
-	  }
+		irmao = pai->filhos[indicePai-2];
+		if(irmao->quantidadeKeys > qtdMinima){
+			return emprestadoEsquerdaInterna(&pai,&atual,&irmao,indicePai);
+		}
 	}
-
 	if(pai->quantidadeFilhos > indicePai){//EXISTE UM IRMAO A DIREITA? MERGE COM O IRMAO A DIREITA
-	  irmao = pai->filhos[indicePai];
-	  atual->keys[atual->quantidadeKeys] = pai->keys[indicePai-1];
-	  atual->quantidadeKeys++;
-	  for(i = 0; i < irmao->quantidadeKeys; i++){
-	    atual->keys[atual->quantidadeKeys] = irmao->keys[i];
-	    irmao->filhos[i]->pai = atual;
-	    atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
-	    atual->quantidadeKeys++;
-	    atual->quantidadeFilhos++;
-	  }
-	  irmao->filhos[i]->pai = atual;
-	  atual->filhos[atual->quantidadeFilhos] = irmao->filhos[i];
-	  atual->quantidadeFilhos++;
-	  free(irmao);
-	  pai->filhos[indicePai] = atual;
-	  return removeElemento(pai, indicePai-1, ordem);
+		irmao = pai->filhos[indicePai];
+		atual->keys[atual->quantidadeKeys] = pai->keys[indicePai-1];
+    atual->quantidadeKeys++;
+    mergeInterno(&atual, &irmao);
+		pai->filhos[indicePai] = atual;
+		free(irmao);
+		return removeElemento(pai, indicePai-1, ordem);
 	}else{ //MERGE COM O IRMAO A ESQUERDA
-	  irmao = pai->filhos[indicePai-2];
-	  if(indicePai > 2) irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-3];
-	  else irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-2];
-	  irmao->quantidadeKeys++;
-	  for(i = 0; i < atual->quantidadeKeys; i++){
-	    irmao->keys[irmao->quantidadeKeys] = atual->keys[i];
-	    atual->filhos[i]->pai = irmao;
-	    irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
-	    irmao->quantidadeKeys++;
-	    irmao->quantidadeFilhos++;
-	  }
-	  atual->filhos[i]->pai = irmao;
-	  irmao->filhos[irmao->quantidadeFilhos] = atual->filhos[i];
-	  irmao->quantidadeFilhos++;
-	  free(atual);
-	  return removeElemento(pai, indicePai-1, ordem);
+		irmao = pai->filhos[indicePai-2];
+		irmao->keys[irmao->quantidadeKeys] = pai->keys[indicePai-2];
+		irmao->quantidadeKeys++;
+		mergeInterno(&irmao, &atual);
+		pai->filhos[indicePai] = irmao;
+		free(atual);
+		return removeElemento(pai, indicePai-1, ordem);
 	}
 }
 
@@ -526,8 +522,8 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 			atual->offsets[indice-1] = atual->offsets[indice];
 			indice++;
 		}
-		atual->keys[indice] = NULL;
-		atual->offsets[indice] = NULL;
+		atual->keys[indice-1] = 0;
+		atual->offsets[indice-1] = NULL;
 		atual->quantidadeKeys--;
 
 		if(atual->quantidadeKeys >= (ordem-1)/2)//AINDA RESTAM O MINIMO DE ELEMENTOS
@@ -537,12 +533,13 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 			return;
 
 		//NAO TEM A QUANTIDADE DE ELEMTNTOS MINIMO
-		//ENCONTRA O INDICE NO PAI PARA CONFERIR SE É POSSIVEL PEGAR EMPRESTADO
+		//ENCONTRA O INDICE NO PAI PARA CONFERIR SE � POSSIVEL PEGAR EMPRESTADO
 		for(i = 0; i <= atual->pai->quantidadeFilhos; i++){
 			if(atual->pai->filhos[i] == atual){
 				break;
 			}
 		}
+
 		return verificaFolha(atual, i+1, ordem);
 
 	}else{//NAO FOLHA
@@ -553,7 +550,7 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 			indice++;
 		}
 		atual->filhos[indice-1] = atual->filhos[indice];
-		atual->keys[indice-1] = NULL;
+		atual->keys[indice-1] = 0;
 		atual->filhos[indice] = NULL;
 		atual->quantidadeKeys--;
 		atual->quantidadeFilhos--;
@@ -565,7 +562,7 @@ void removeElemento(nodo_t* atual, int indice, int ordem){
 			return;
 
 		//NAO TEM A QUANTIDADE DE ELEMTNTOS MINIMO
-		//ENCONTRA O INDICE NO PAI PARA CONFERIR SE É POSSIVEL PEGAR EMPRESTADO
+		//ENCONTRA O INDICE NO PAI PARA CONFERIR SE � POSSIVEL PEGAR EMPRESTADO
 		for(i = 0; i <= atual->pai->quantidadeFilhos; i++){
 			if(atual->pai->filhos[i] == atual){
 				break;
