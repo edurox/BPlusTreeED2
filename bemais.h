@@ -40,49 +40,49 @@ typedef struct nodo_t{
 
 typedef vector<index_t> vind;
 
-//Inicialização e funçõe auxiliares
-//Cria a hash a partir de uma string. Função que foi pega na internet.
+//Inicializa��o e fun��e auxiliares
+//Cria a hash a partir de uma string. Fun��o que foi pega na internet.
 Hash hashFunction(char *str);
-//Função que recebe o nome de arquivo a ser aberto e retorna o ponteiro para o arquivo. A função já trata dos possiveis erros que podem acontecer na abertura de um arquivo.
+//Fun��o que recebe o nome de arquivo a ser aberto e retorna o ponteiro para o arquivo. A fun��o j� trata dos possiveis erros que podem acontecer na abertura de um arquivo.
 FILE* abrirArquivo(char arquivoEntrada[]);
-//Função para comparar duas variáves de tipo index_t. Foi criada pra dar suporte a função de sort da biblioteca algorithm.
+//Fun��o para comparar duas vari�ves de tipo index_t. Foi criada pra dar suporte a fun��o de sort da biblioteca algorithm.
 bool compareIndex(const index_t &_a, const index_t &_b);
-//Função que le o arquivo .csv e guarda as hashs e os offsets no vector de index_t
+//Fun��o que le o arquivo .csv e guarda as hashs e os offsets no vector de index_t
 void leituraArquivo(vind &indices, int nChar, int atributo, FILE *entrada);
 
 //BulkLoading
-//Função principal do Bulk Loading. Retorna se nenhum erro aconteceu.
+//Fun��o principal do Bulk Loading. Retorna se nenhum erro aconteceu.
 int bulk_loading(nodo_t* &arvore, vind &indices, int ordem);
-//Função que liga o filho recém criado de Bulk Loading com o pai. Se não tem espaço no pai, a função também lida com isso criando novos nós.
+//Fun��o que liga o filho rec�m criado de Bulk Loading com o pai. Se n�o tem espa�o no pai, a fun��o tamb�m lida com isso criando novos n�s.
 int checaPai(nodo_t *filhoAtual, nodo_t** pAtual, Hash hashQueVem, int ordem);
-//Função que cria e inicaliza nodo e retorna o ponteiro.
+//Fun��o que cria e inicaliza nodo e retorna o ponteiro.
 nodo_t* criaNodo(int ordem, bool folha);
-//Função que cria e inicializa offset e retorna o ponteiro pro offset. Ela recebe o offset a ser inserido e o antigo offset de um hash, para poder inserir o novo offset no começo da lista, e não no final.
+//Fun��o que cria e inicializa offset e retorna o ponteiro pro offset. Ela recebe o offset a ser inserido e o antigo offset de um hash, para poder inserir o novo offset no come�o da lista, e n�o no final.
 offsets_t* criaOffset(Offset o, offsets_t *p);
 
-//Destruir a árvore
-//Função para destruir a arvore (desalocar da memória)
+//Destruir a �rvore
+//Fun��o para destruir a arvore (desalocar da mem�ria)
 void mataArvore(nodo_t *n);
-//Função para destruir os offsets (desalocá-los da memória)
+//Fun��o para destruir os offsets (desaloc�-los da mem�ria)
 void mataOffsets(offsets_t *o);
 
-//Imprimir a árvore
-//Função que cria o arquivo .dot, transforma-o em .png e abre a imagem da arvore.
+//Imprimir a �rvore
+//Fun��o que cria o arquivo .dot, transforma-o em .png e abre a imagem da arvore.
 int imprimeArvore(nodo_t *arvore);
-//Função auxiliar da imprimeArvore que imprime os nodos.
+//Fun��o auxiliar da imprimeArvore que imprime os nodos.
 void imprimeNodos(FILE *dotFile, nodo_t *n, int *numeroNodo, int liga);
-//Função que remove o Ultimo elemento de um nó e ajeita o nó de acordo com o resultado.
+//Fun��o que remove o Ultimo elemento de um n� e ajeita o n� de acordo com o resultado.
 void removeUltimo(nodo_t *paiAtual, int ordem);
-//Função que imprime a tupla, dado um no e uma posição
+//Fun��o que imprime a tupla, dado um no e uma posi��o
 void imprimeTupla(nodo_t *nodoAtual, int indiceElemento, FILE *arquivo);
 
 //Buscar Elemento
-//Função que retorna o endereço do nó em que se encontra o elemento "procurando" e coloca a posição do elemento na variável indice. A função retorna NULL caso o elemento não seja encontrado
+//Fun��o que retorna o endere�o do n� em que se encontra o elemento "procurando" e coloca a posi��o do elemento na vari�vel indice. A fun��o retorna NULL caso o elemento n�o seja encontrado
 nodo_t *achaElemento(nodo_t* noAtual, int &indice, Hash procurando);
 //Busca binaria
 int bbin(nodo_t *nodoAtual, Hash numero);
 
-//Com o usuário
+//Com o usu�rio
 void imprimeMenu();
 
 nodo_t* trataExcecoes(nodo_t* paiAtual, nodo_t *filhoAtual, int ordem);
@@ -93,5 +93,7 @@ void verificaFolha(nodo_t *atual, int indicePai, int ordem);
 void verificaInterno(nodo_t *atual, int indicePai, int ordem);
 void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int indicePai);
 void emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
+void mergeFolha(nodo_t **nodoQueObedece, nodo_t **nodoQueManda);
 void emprestadoDireitaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
 void emprestadoEsquerdaInterna(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int indicePai);
+void mergeInterno(nodo_t **nodoQueObedece, nodo_t **nodoQueManda);
