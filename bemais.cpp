@@ -349,7 +349,6 @@ void imprimeMenu() {
 }
 
 
-
 void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int indicePai){
 	int i;
 	(*atual)->keys[(*atual)->quantidadeKeys] = (*irmao)->keys[0];
@@ -361,7 +360,7 @@ void emprestadoDireitaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao, int in
 		(*irmao)->offsets[i-1] = (*irmao)->offsets[i];
 	}
 	(*irmao)->keys[i] = 0;
-	mataOffsets((*irmao)->offsets[i]);
+	(*irmao)->offsets[i] = NULL;
 	(*irmao)->quantidadeKeys--;
 	(*pai)->keys[indicePai-1] = (*irmao)->keys[0];
 }
@@ -377,7 +376,7 @@ void emprestadoEsquerdaFolha(nodo_t** pai, nodo_t** atual, nodo_t** irmao,int in
 	(*atual)->keys[0] = (*irmao)->keys[(*irmao)->quantidadeKeys];
 	(*atual)->offsets[0] = (*irmao)->offsets[(*irmao)->quantidadeKeys];
 	(*irmao)->keys[(*irmao)->quantidadeKeys] = 0;
-	mataOffsets((*irmao)->offsets[(*irmao)->quantidadeKeys]);
+	(*irmao)->offsets[(*irmao)->quantidadeKeys] = NULL;
 	(*pai)->keys[indicePai-2] = (*atual)->keys[0];
 }
 
